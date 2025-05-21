@@ -32,9 +32,16 @@ public_users.post("/register", (req, res) => {
 
 });
 
-public_users.get('/', function (req, res) {
-  const books_to_display = JSON.stringify(books)
-  return res.status(300).send(books_to_display);
+public_users.get('/', async function (req, res) {
+  try {
+    const data = await booksPrmise((resolve) => {
+      const bookList = Object.values(books)
+      resolve(bookList)
+    }, 3000)
+    return res.status(200).json(data)
+  } catch (err) {
+    return res.status(500).json({ message: "An error occurred" });
+  }
 });
 
 // Get book details based on ISBN
@@ -45,7 +52,7 @@ public_users.get('/isbn/:isbn', function (req, res) {
 });
 
 // Get book details based on author
-public_users.get('/author/:author', function (req, res) {
+public_users.get('/author/:author', async, function (req, res) {
   const author_params = req.params.author
   const book_by_author = Object.values(books).filter((book) => {
     return book.author === author_params;
